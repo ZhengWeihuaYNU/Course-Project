@@ -1,0 +1,48 @@
+#Step 1: Merge the training and the test sets to 
+#        create one data set.
+setwd("e:/Program Files/R/UCI HAR Dataset")
+DatTest=read.table("test/X_test.txt")
+DatTrain=read.table("train/X_train.txt")
+#read test data and train data
+MergedDat=rbind(DatTrain,DatTest)
+#merge them
+SubjectTest=read.table("test/subject_test.txt")
+SubjectTrain=read.table("train/subject_train.txt")
+#read data of subjects
+MergedSubject=rbind(SubjectTrain,SubjectTest)
+#merge them
+Population=cbind(MergedSubject,MergedDat)
+#merge all the data above to create a new data set
+
+
+#Step 2: Extracts only the measurements on the mean 
+#        and standard deviation for each measurement.
+Features=read.table("features.txt")
+colnames(Features)=c("FeatureNum","FeatureName")
+ExtractedFeatures=Features[grepl("mean\\(\\)|std\\(\\)",Features$FeatureName),]
+ExtractedMeasurements=Population[,ExtractedFeatures$FeatureName]
+
+
+#Step 3:Use descriptive activity names to name
+#       the activities in the data set.
+TrainingL=read.table("train/y_train.txt")
+TestingL=read.table("test/y_test.txt")
+ActL=rbind(TrainingL,TestingL)
+colnames(ActL)="Activity"
+Population=cbind(Population,ActL)
+Labels=read.table("activity_labels.txt")
+Population$Activity=as.character(Population$Activity)
+Labels[,2]=as.character(Labels[,2])
+NumWalk=grep("1",Population$Activity)
+Population$Activity[NumWalk]=Labels[1,2]
+NumUpstairs=grep("2",Population$Activity)
+Population$Activity[NumUpstairs]=Labels[2,2]
+NumDownstairs=grep("3",Population$Activity)
+Population$Activity[NumDownstairs]=Labels[3,2]
+NumSit=grep("4",Population$Activity)
+Population$Activity[NumSit]=Labels[4,2]
+NumStand=grep("5",Population$Activity)
+Population$Activity[NumStand]=Labels[5,2]
+NumLie=grep("6",Population$Activity)
+Population$Activity[NumLie]=Labels[6,2]
+write.table(Population,file="Course Project.txt",row.name=F)
